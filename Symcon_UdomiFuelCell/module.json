@@ -1,0 +1,14 @@
+{
+	"id": "{B1925D5E-EF3B-4D0D-B6DD-46B3F889161E}",
+	"name": "UdomiEfoyFuelCell",
+	"type": 3,
+	"vendor": "timo-u",
+	"aliases": 
+	[
+		"Udomi Efoy Fuel Cell"
+	],
+	"parentRequirements": [],
+	"childRequirements": [],
+	"implemented": [],
+	"prefix": "Udomi"
+}

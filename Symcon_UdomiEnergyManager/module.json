@@ -1,0 +1,14 @@
+{
+	"id": "{8C175EC5-813D-4BD2-A2C6-CD071E0C5381}",
+	"name": "UdomiEnergyManager",
+	"type": 3,
+	"vendor": "timo-u",
+	"aliases": 
+	[
+		"Udomi Energy Manager"
+	],
+	"parentRequirements": [],
+	"childRequirements": [],
+	"implemented": [],
+	"prefix": "Udomi"
+}
