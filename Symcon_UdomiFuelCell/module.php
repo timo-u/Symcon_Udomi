@@ -13,25 +13,27 @@ declare(strict_types=1);
             $this->RegisterPropertyString('IMEI', '356612020375954');
             $this->RegisterPropertyBoolean('Logging', false);
             $this->RegisterPropertyInteger('UpdateInterval', 3600);
-
+			$this->RegisterPropertyInteger('ConnectionWarningInterval', 7200);
+			
             $this->RegisterVariableProfiles();
 
-            $this->RegisterVariableString('Timestamp', $this->Translate('Last Connection'));
+            $this->RegisterVariableString('Timestamp', $this->Translate('Last Connection'),"",4);
 
-            $this->RegisterVariableFloat('BatteryVoltage', $this->Translate('Battery Voltage'), 'Udomi_VoltageFine');
-            $this->RegisterVariableFloat('OutputCurrent', $this->Translate('Output Current'), 'Udomi_CurrentFine');
-            $this->RegisterVariableFloat('OperationTime', $this->Translate('Operation Time'), 'Udomi_UperationTime');
-            $this->RegisterVariableFloat('OutputEnergy', $this->Translate('Output Energy'), 'Udomi_Energy');
-            $this->RegisterVariableFloat('MethanolConsumed', $this->Translate('Methanol Consumed'), 'Udomi_MethanolLiter');
+            $this->RegisterVariableFloat('BatteryVoltage', $this->Translate('Battery Voltage'), 'Udomi_VoltageFine',10);
+            $this->RegisterVariableFloat('OutputCurrent', $this->Translate('Output Current'), 'Udomi_CurrentFine',10);
+            $this->RegisterVariableFloat('OperationTime', $this->Translate('Operation Time'), 'Udomi_UperationTime',50);
+            $this->RegisterVariableFloat('OutputEnergy', $this->Translate('Output Energy Efoy'), 'Udomi_Energy',50);
+            $this->RegisterVariableFloat('MethanolConsumed', $this->Translate('Methanol Consumed'), 'Udomi_MethanolLiter',20);
 
-            $this->RegisterVariableInteger('OperatingMode', $this->Translate('Operating Mode'), 'Udomi_OperatingMode');
-            $this->RegisterVariableInteger('OperatingState', $this->Translate('Operating State'), 'Udomi_OperatingState');
-            $this->RegisterVariableInteger('Cartridge', $this->Translate('Cartridge'));
+            $this->RegisterVariableInteger('OperatingMode', $this->Translate('Operating Mode'), 'Udomi_OperatingMode',5);
+            $this->RegisterVariableInteger('OperatingState', $this->Translate('Operating State'), 'Udomi_OperatingState',6);
+            $this->RegisterVariableInteger('Cartridge', $this->Translate('Cartridge'),"",20);
 
-            $this->RegisterVariableBoolean('HasProblem', $this->Translate('Issue'), 'Udomi_YesNo');
-            $this->RegisterVariableBoolean('CartridgeLow', $this->Translate('Cartridge Low'), 'Udomi_CartridgeLow');
+            $this->RegisterVariableBoolean('HasProblem', $this->Translate('Issue'), 'Udomi_YesNo',1);
+            $this->RegisterVariableBoolean('CartridgeLow', $this->Translate('Cartridge Low'), 'Udomi_CartridgeLow',3);
+			$this->RegisterVariableBoolean('ConnectionError', $this->Translate('Connection Error'), 'Udomi_YesNo',2);
 
-            $this->RegisterTimer('Update', $this->ReadPropertyInteger('UpdateInterval') * 1000, 'Udomi_Update($_IPS[\'TARGET\']);');
+            $this->RegisterTimer('Update', $this->ReadPropertyInteger('UpdateInterval') * 1000, 'Udomi_UpdateFuelCell($_IPS[\'TARGET\']);');
         }
 
         public function ApplyChanges()
@@ -152,7 +154,7 @@ declare(strict_types=1);
             if (!IPS_VariableProfileExists('Udomi_CartridgeLow')) {
                 IPS_CreateVariableProfile('Udomi_CartridgeLow', 0);
                 IPS_SetVariableProfileAssociation('Udomi_CartridgeLow', 0, $this->Translate('OK'), '', 0x00FF00);
-                IPS_SetVariableProfileAssociation('Udomi_CartridgeLow', 1, $this->Translate('LOW'), '', 0xFF0000);
+                IPS_SetVariableProfileAssociation('Udomi_CartridgeLow', 1, $this->Translate('Low'), '', 0xFF0000);
             }
             if (!IPS_VariableProfileExists('Udomi_YesNo')) {
                 IPS_CreateVariableProfile('Udomi_YesNo', 0);
@@ -161,7 +163,7 @@ declare(strict_types=1);
             }
         }
 
-        public function Update()
+        public function UpdateFuelCell()
         {
             $user = $this->ReadPropertyString('User');
             $pass = $this->ReadPropertyString('Password');
@@ -299,7 +301,10 @@ declare(strict_types=1);
 
             SetValue($this->GetIDForIdent('OperatingState'), $state);
             SetValue($this->GetIDForIdent('OperatingMode'), $mode);
-
+			
+			$difference =  time() -strtotime($obj['timestamp']);
+			SetValue($this->GetIDForIdent('ConnectionError'), ($difference > $this->ReadPropertyInteger('ConnectionWarningInterval'))&& $this->ReadPropertyInteger('ConnectionWarningInterval')> 0 );
+			
             /*
             Sample:
 

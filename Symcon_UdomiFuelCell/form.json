@@ -27,7 +27,7 @@
 	],
     "actions":
     [
-        { "type": "Button", "label": "Update", "onClick": "UDOMI_Update($id);" }
+        { "type": "Button", "label": "Update", "onClick": "UDOMI_UpdateFuelCell($id);" }
     ],
     "status":
     [

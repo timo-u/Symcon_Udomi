@@ -36,7 +36,7 @@
 			"Battery Voltage" : "Batterie-Spannung",
 			"Output Current" : "Ladestrom",
 			"Operation Time" : "Betriebsdauer (Laden)",
-			"Output Energy" : "erzeugte Energie",
+			"Output Energy Efoy" : "erzeugte Energie Efoy",
 			"Methanol Consumed" : "verbrauchtes Methanol",
 			"Operating Mode" : "Betriebsmodus",
 			"Operating State" : "Betriebsstatus",
@@ -46,6 +46,7 @@
 			"UpdateInterval" : "Aktualisierungs-Intervall",
 			"Logging" : "Logging",
 			"Active" : "Aktiv",
+			"Connection Error" : "Verbindungsfehler",
 			"Connection failed" : "Verbindung fehlgeschlagen",
 			"IMEI was not connected to the Account" : "Das Gerät mit dieser IMEI ist nicht mit dem Accout verbunden",
 			"Wrong username or password" : "Benutername oder Password falsch"
