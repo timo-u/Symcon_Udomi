@@ -74,6 +74,10 @@ declare(strict_types=1);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('OutputEnergy'), true);
 
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('Cartridge'), true);
+								
+				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
+				AC_SetAggregationType($archiveId, $this->GetIDForIdent('ConnectionError'), 0); // 0 Standard, 1 Zähler
+                AC_SetGraphStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
 
                 IPS_ApplyChanges($archiveId);
             } else {
@@ -92,7 +96,10 @@ declare(strict_types=1);
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('HasProblem'), false);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('HasProblem'), false);
 
-                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('OutputCurrent'), false);
+				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);
+                AC_SetGraphStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);  
+ 
+				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('OutputCurrent'), false);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('OutputCurrent'), false);
 
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('OperationTime'), false);
@@ -258,7 +265,7 @@ declare(strict_types=1);
             SetValue($this->GetIDForIdent('BatteryVoltage'), $obj['battery_voltage_efoy']);
             SetValue($this->GetIDForIdent('MethanolConsumed'), $obj['methanol_consumed_efoy']);
             SetValue($this->GetIDForIdent('CartridgeLow'), $obj['cartridge_low_efoy']);
-            SetValue($this->GetIDForIdent('HasProblem'), ($obj['error_efoy'] != 'no error' || $obj['warning_efoy'] != 'no warning' || $obj['cartridge_low_efoy'] != 0));
+            SetValue($this->GetIDForIdent('HasProblem'), ($obj['error_efoy'] != 'no error' || $obj['warning_efoy'] != 'no warning' ));
 
             SetValue($this->GetIDForIdent('OutputCurrent'), $obj['output_current_efoy']);
             SetValue($this->GetIDForIdent('OperationTime'), $obj['operation_time_efoy']);

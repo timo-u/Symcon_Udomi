@@ -87,6 +87,10 @@ declare(strict_types=1);
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('Cartridge'), true);
 				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('AlarmSolar'), true);
 				
+				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
+				AC_SetAggregationType($archiveId, $this->GetIDForIdent('ConnectionError'), 0); // 0 Standard, 1 Zähler
+                AC_SetGraphStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
+				
 				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('TemperatureHeatsink'), true);
                 AC_SetAggregationType($archiveId, $this->GetIDForIdent('TemperatureHeatsink'), 0); // 0 Standard, 1 Zähler
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('TemperatureHeatsink'), true);
@@ -146,6 +150,9 @@ declare(strict_types=1);
 
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('Cartridge'), false);
 				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('AlarmSolar'), false);
+				
+				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);
+                AC_SetGraphStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);
 				
 				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('TemperatureHeatsink'), false);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('TemperatureHeatsink'), false);

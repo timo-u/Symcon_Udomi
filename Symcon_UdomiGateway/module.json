@@ -1,0 +1,14 @@
+{
+	"id": "{4A56243C-780E-4352-839C-C81A109042ED}",
+	"name": "UdomiGateway",
+	"type": 1,
+	"vendor": "timo-u",
+	"aliases": 
+	[
+		"Udomi Gateway"
+	],
+	"parentRequirements": [],
+	"childRequirements": ["{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}"],
+	"implemented": ["{C5D651BF-3DEF-4346-BB30-C8A98106B115}"],
+	"prefix": "Udomi"
+}

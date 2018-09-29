@@ -1,0 +1,18 @@
+{
+    "elements":
+    [
+        { "type": "ValidationTextBox", "name": "User", "caption": "User" },
+        { "type": "PasswordTextBox", "name": "Password", "caption": "Password" }
+	],
+    "actions":
+    [
+        { "type": "Button", "label": "Update", "onClick": "UDOMI_Connect($id);" },
+		{ "type": "Button", "label": "Get Devices", "onClick": "UDOMI_GetDevices($id);" }
+    ],
+    "status":
+    [
+        { "code": 102, "icon": "active", "caption": "Active" },
+		{ "code": 201, "icon": "error", "caption": "Connection failed" },
+        { "code": 202, "icon": "error", "caption": "Authentication failed" }
+    ]
+}
