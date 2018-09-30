@@ -8,30 +8,30 @@ declare(strict_types=1);
             //Never delete this line!
             parent::Create();
 
-			$this->ConnectParent("{4A56243C-780E-4352-839C-C81A109042ED}");
-			
+            $this->ConnectParent('{4A56243C-780E-4352-839C-C81A109042ED}');
+
             $this->RegisterPropertyString('IMEI', '356612020375954');
             $this->RegisterPropertyBoolean('Logging', false);
             $this->RegisterPropertyInteger('UpdateInterval', 3600);
-			$this->RegisterPropertyInteger('ConnectionWarningInterval', 7200);
-			
+            $this->RegisterPropertyInteger('ConnectionWarningInterval', 7200);
+
             $this->RegisterVariableProfiles();
 
-            $this->RegisterVariableString('Timestamp', $this->Translate('Last Connection'),"",4);
+            $this->RegisterVariableString('Timestamp', $this->Translate('Last Connection'), '', 4);
 
-            $this->RegisterVariableFloat('BatteryVoltage', $this->Translate('Battery Voltage'), 'Udomi_VoltageFine',10);
-            $this->RegisterVariableFloat('OutputCurrent', $this->Translate('Output Current'), 'Udomi_CurrentFine',10);
-            $this->RegisterVariableFloat('OperationTime', $this->Translate('Operation Time'), 'Udomi_UperationTime',50);
-            $this->RegisterVariableFloat('OutputEnergy', $this->Translate('Output Energy Efoy'), 'Udomi_Energy',50);
-            $this->RegisterVariableFloat('MethanolConsumed', $this->Translate('Methanol Consumed'), 'Udomi_MethanolLiter',20);
+            $this->RegisterVariableFloat('BatteryVoltage', $this->Translate('Battery Voltage'), 'Udomi_VoltageFine', 10);
+            $this->RegisterVariableFloat('OutputCurrent', $this->Translate('Output Current'), 'Udomi_CurrentFine', 10);
+            $this->RegisterVariableFloat('OperationTime', $this->Translate('Operation Time'), 'Udomi_UperationTime', 50);
+            $this->RegisterVariableFloat('OutputEnergy', $this->Translate('Output Energy Efoy'), 'Udomi_Energy', 50);
+            $this->RegisterVariableFloat('MethanolConsumed', $this->Translate('Methanol Consumed'), 'Udomi_MethanolLiter', 20);
 
-            $this->RegisterVariableInteger('OperatingMode', $this->Translate('Operating Mode'), 'Udomi_OperatingMode',5);
-            $this->RegisterVariableInteger('OperatingState', $this->Translate('Operating State'), 'Udomi_OperatingState',6);
-            $this->RegisterVariableInteger('Cartridge', $this->Translate('Cartridge'),"",20);
+            $this->RegisterVariableInteger('OperatingMode', $this->Translate('Operating Mode'), 'Udomi_OperatingMode', 5);
+            $this->RegisterVariableInteger('OperatingState', $this->Translate('Operating State'), 'Udomi_OperatingState', 6);
+            $this->RegisterVariableInteger('Cartridge', $this->Translate('Cartridge'), '', 20);
 
-            $this->RegisterVariableBoolean('HasProblem', $this->Translate('Issue'), 'Udomi_YesNo',1);
-            $this->RegisterVariableBoolean('CartridgeLow', $this->Translate('Cartridge Low'), 'Udomi_CartridgeLow',3);
-			$this->RegisterVariableBoolean('ConnectionError', $this->Translate('Connection Error'), 'Udomi_YesNo',2);
+            $this->RegisterVariableBoolean('HasProblem', $this->Translate('Issue'), 'Udomi_YesNo', 1);
+            $this->RegisterVariableBoolean('CartridgeLow', $this->Translate('Cartridge Low'), 'Udomi_CartridgeLow', 3);
+            $this->RegisterVariableBoolean('ConnectionError', $this->Translate('Connection Error'), 'Udomi_YesNo', 2);
 
             $this->RegisterTimer('Update', $this->ReadPropertyInteger('UpdateInterval') * 1000, 'Udomi_UpdateFuelCell($_IPS[\'TARGET\']);');
         }
@@ -74,9 +74,9 @@ declare(strict_types=1);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('OutputEnergy'), true);
 
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('Cartridge'), true);
-								
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
-				AC_SetAggregationType($archiveId, $this->GetIDForIdent('ConnectionError'), 0); // 0 Standard, 1 Zähler
+
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
+                AC_SetAggregationType($archiveId, $this->GetIDForIdent('ConnectionError'), 0); // 0 Standard, 1 Zähler
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
 
                 IPS_ApplyChanges($archiveId);
@@ -96,10 +96,10 @@ declare(strict_types=1);
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('HasProblem'), false);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('HasProblem'), false);
 
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);
-                AC_SetGraphStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);  
- 
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('OutputCurrent'), false);
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);
+                AC_SetGraphStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);
+
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('OutputCurrent'), false);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('OutputCurrent'), false);
 
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('OperationTime'), false);
@@ -172,30 +172,31 @@ declare(strict_types=1);
 
         public function UpdateFuelCell()
         {
-            
             $imei = $this->ReadPropertyString('IMEI');
-			
-			$data = [
-            'action' => "fuelcell/" . $imei,
-			'imei' => $imei
+
+            $data = [
+            'action' => 'fuelcell/'.$imei,
+            'imei'   => $imei,
             ];
-			IPS_LogMessage('Symcon_Udomi/FuelCell',"SendDataToParent Data: ".json_encode( $data));
-			 return $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
-		}
-		
-		   public function ReceiveData($JSONString)
+            IPS_LogMessage('Symcon_Udomi/FuelCell', 'SendDataToParent Data: '.json_encode($data));
+
+            return $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
+        }
+
+        public function ReceiveData($JSONString)
         {
-			
-			// Receive data from Gateway
+
+            // Receive data from Gateway
             $data = json_decode($JSONString);
 
             $data = $data->Buffer;
-            
-			if($data->imei != $this->ReadPropertyString('IMEI'))
-				return;
-			IPS_LogMessage('Symcon_Udomi/FuelCell',"ReceiveData Data: ".$JSONString);
-			$obj = $data->response;
-			//  $obj = json_decode($response, true);
+
+            if ($data->imei != $this->ReadPropertyString('IMEI')) {
+                return;
+            }
+            IPS_LogMessage('Symcon_Udomi/FuelCell', 'ReceiveData Data: '.$JSONString);
+            $obj = $data->response;
+            //  $obj = json_decode($response, true);
 
             if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
                 echo $obj['message'];
@@ -215,7 +216,7 @@ declare(strict_types=1);
             SetValue($this->GetIDForIdent('BatteryVoltage'), $obj->battery_voltage_efoy);
             SetValue($this->GetIDForIdent('MethanolConsumed'), $obj->methanol_consumed_efoy);
             SetValue($this->GetIDForIdent('CartridgeLow'), $obj->cartridge_low_efoy);
-            SetValue($this->GetIDForIdent('HasProblem'), ($obj->error_efoy != 'no error' || $obj->warning_efoy != 'no warning' ));
+            SetValue($this->GetIDForIdent('HasProblem'), ($obj->error_efoy != 'no error' || $obj->warning_efoy != 'no warning'));
 
             SetValue($this->GetIDForIdent('OutputCurrent'), $obj->output_current_efoy);
             SetValue($this->GetIDForIdent('OperationTime'), $obj->operation_time_efoy);
@@ -258,10 +259,10 @@ declare(strict_types=1);
 
             SetValue($this->GetIDForIdent('OperatingState'), $state);
             SetValue($this->GetIDForIdent('OperatingMode'), $mode);
-			
-			$difference =  time() -strtotime($obj->timestamp);
-			SetValue($this->GetIDForIdent('ConnectionError'), ($difference > $this->ReadPropertyInteger('ConnectionWarningInterval'))&& $this->ReadPropertyInteger('ConnectionWarningInterval')> 0 );
-			
+
+            $difference = time() - strtotime($obj->timestamp);
+            SetValue($this->GetIDForIdent('ConnectionError'), ($difference > $this->ReadPropertyInteger('ConnectionWarningInterval')) && $this->ReadPropertyInteger('ConnectionWarningInterval') > 0);
+
             /*
             Sample:
 
