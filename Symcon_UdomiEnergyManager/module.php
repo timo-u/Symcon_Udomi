@@ -8,8 +8,8 @@ declare(strict_types=1);
             //Never delete this line!
             parent::Create();
 
-            $this->RegisterPropertyString('User', 'demo');
-            $this->RegisterPropertyString('Password', 'demo');
+			$this->ConnectParent("{4A56243C-780E-4352-839C-C81A109042ED}");
+			
             $this->RegisterPropertyString('IMEI', '357299070039042');
             $this->RegisterPropertyBoolean('Logging', false);
             $this->RegisterPropertyInteger('UpdateInterval', 3600);
@@ -239,118 +239,74 @@ declare(strict_types=1);
 
         public function UpdateEnergyManager()
         {
-            $user = $this->ReadPropertyString('User');
-            $pass = $this->ReadPropertyString('Password');
+
             $imei = $this->ReadPropertyString('IMEI');
 
-            $curl = curl_init();
+			$data = [
+            'action' => "energymanager/" . $imei,
+			'imei' => $imei
+            ];
+			
+			IPS_LogMessage('Symcon_Udomi/EnergyManager',"SendDataToParent Data: ".json_encode( $data));
+			
+			$this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data])); 
+			return;
+		}
+		
+		   public function ReceiveData($JSONString)
+        {
+			
+			try
+			{
+				
+			// Receive data from Gateway
+            $data = json_decode($JSONString);
 
-            curl_setopt_array($curl, [
-            CURLOPT_URL            => 'https://www.m2mgate.de/udomi/rest/api/login',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING       => '',
-            CURLOPT_MAXREDIRS      => 10,
-            CURLOPT_TIMEOUT        => 30,
-            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST  => 'POST',
-            CURLOPT_POSTFIELDS     => "user=$user&pass=$pass",
-            CURLOPT_HTTPHEADER     => [
-            'Cache-Control: no-cache',
-            'Content-Type: application/x-www-form-urlencoded',
-            ],
-            ]);
+            $data = $data->Buffer;
+            if($data->imei != $this->ReadPropertyString('IMEI'))
+				return;
+			IPS_LogMessage('Symcon_Udomi/EnergyManager',"ReceiveData Data: ".$JSONString);
+			
+			if(property_exists($data, "error"))
+			{
+				IPS_LogMessage('Symcon_Udomi/EnergyManager',"Has Error: ".$data->error);
+			}
+			
+		
+			
+			$obj = $data->response;
+		
 
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
-
-            curl_close($curl);
-
-            if ($err) {
-                echo 'cURL Error #:'.$err;
-                $this->SetStatus(201);
-
-                return;
-            }
-
-            $obj = json_decode($response, true);
-
-            if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
-                echo $this->Translate($obj['message']);
-                IPS_LogMessage('Symcon_Udomi', 'Error: '.$this->Translate($obj['message']));
-                $this->SetStatus(202); // Authentication failed
-                return;
-            }
-
-            $token = $obj['token'];
-
-            $curl = curl_init();
-
-            curl_setopt_array($curl, [
-            CURLOPT_URL            => "https://www.m2mgate.de/udomi/rest/api/energymanager/$imei",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING       => '',
-            CURLOPT_MAXREDIRS      => 10,
-            CURLOPT_TIMEOUT        => 30,
-            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST  => 'POST',
-            CURLOPT_POSTFIELDS     => "token=$token",
-            CURLOPT_HTTPHEADER     => [
-                'Cache-Control: no-cache',
-                'Content-Type: application/x-www-form-urlencoded',
-                ],
-            ]);
-
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
-
-            curl_close($curl);
-
-            if ($err) {
-                echo 'cURL Error #:'.$err;
-                $this->SetStatus(201);
-
-                return;
-            }
-
-            $obj = json_decode($response, true);
-
-            if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
-                echo $obj['message'];
-                IPS_LogMessage('Symcon_Udomi', 'Error: '.$obj['message']);
-                if ($obj['message'] == 'IMEI is not assigned to user or does not exist.') {
-                    $this->SetStatus(203);
-                } // IMEI is not assigned to user or does not exist.
-                else {
-                    $this->SetStatus(204);
-                } // IMEI is not assigned to user or does not exist.
-                return;
-            }
-
+			if($obj == null) 
+			{	
+				return true;	
+			}	
+			
             //print_r( $obj );
-            IPS_LogMessage('Symcon_Udomi', $response);
+            //IPS_LogMessage('Symcon_Udomi', $response);
 
-            SetValue($this->GetIDForIdent('BatteryVoltage'), $obj['battery_voltage_efoy']);
-            SetValue($this->GetIDForIdent('MethanolConsumed'), $obj['methanol_consumed_efoy']);
-            SetValue($this->GetIDForIdent('CartridgeLow'), $obj['cartridge_low_efoy']);
-            SetValue($this->GetIDForIdent('HasProblem'), ($obj['error_efoy'] != 'no error' || $obj['cartridge_low_efoy'] != 0));
+            SetValue($this->GetIDForIdent('BatteryVoltage'), $obj->battery_voltage_efoy);
+            SetValue($this->GetIDForIdent('MethanolConsumed'), $obj->methanol_consumed_efoy);
+            SetValue($this->GetIDForIdent('CartridgeLow'), $obj->cartridge_low_efoy);
+            SetValue($this->GetIDForIdent('HasProblem'), ($obj->error_efoy != 'no error' || $obj->cartridge_low_efoy != 0));
 
-            SetValue($this->GetIDForIdent('OutputCurrent'), $obj['output_current_efoy']);
-            SetValue($this->GetIDForIdent('OperationTime'), $obj['operation_time_efoy']);
-            SetValue($this->GetIDForIdent('Timestamp'), $obj['timestamp']);
-            SetValue($this->GetIDForIdent('Cartridge'), $obj['cartridge_efoy']);
-            SetValue($this->GetIDForIdent('OutputEnergy'), $obj['cumulative_output_energy_efoy']);
+            SetValue($this->GetIDForIdent('OutputCurrent'), $obj->output_current_efoy);
+            SetValue($this->GetIDForIdent('OperationTime'), $obj->operation_time_efoy);
+            SetValue($this->GetIDForIdent('Timestamp'), $obj->timestamp);
+            SetValue($this->GetIDForIdent('Cartridge'), $obj->cartridge_efoy);
+            SetValue($this->GetIDForIdent('OutputEnergy'), $obj->cumulative_output_energy_efoy);
 
-			SetValue($this->GetIDForIdent('TemperatureHeatsink'), $obj['t_heatsink_solar']);
-			SetValue($this->GetIDForIdent('TemperatureBattery'), $obj['t_batt_solar']);
-			SetValue($this->GetIDForIdent('ArrayVoltage'), $obj['array_voltage_solar']);
-			SetValue($this->GetIDForIdent('SolarChargeCurrent'), $obj['i_charge_solar']);
-			SetValue($this->GetIDForIdent('SolarLoadCurrent'), $obj['i_load_solar']);
-			SetValue($this->GetIDForIdent('DaylySolarCharge'), $obj['charge_daily_solar']);
-			SetValue($this->GetIDForIdent('DaylyLoadCharge'), $obj['load_daily_solar']);
-			SetValue($this->GetIDForIdent('AlarmSolar'), $obj['alarm_solar']);
+			SetValue($this->GetIDForIdent('TemperatureHeatsink'), $obj->t_heatsink_solar);
+			SetValue($this->GetIDForIdent('TemperatureBattery'), $obj->t_batt_solar);
+			SetValue($this->GetIDForIdent('ArrayVoltage'), $obj->array_voltage_solar);
+			SetValue($this->GetIDForIdent('SolarChargeCurrent'), $obj->i_charge_solar);
+			SetValue($this->GetIDForIdent('SolarLoadCurrent'), $obj->i_load_solar);
+			SetValue($this->GetIDForIdent('DaylySolarCharge'), $obj->charge_daily_solar);
+			SetValue($this->GetIDForIdent('DaylyLoadCharge'), $obj->load_daily_solar);
+			SetValue($this->GetIDForIdent('AlarmSolar'), $obj->alarm_solar);
 			
             $state = 0;
-            switch ($obj['operating_state_efoy']) {
+            switch ($obj->operating_state_efoy) {
     case 'auto off':
         $state = 1;
         break;
@@ -364,11 +320,11 @@ declare(strict_types=1);
         $state = 4;
         break;
     default:
-        echo $obj['operating_state_efoy'];
+        echo $obj->operating_state_efoy;
 }
 
             $mode = 0;
-            switch ($obj['operating_mode_efoy']) {
+            switch ($obj->operating_mode_efoy) {
     case 'auto':
         $mode = 1;
         break;
@@ -379,13 +335,13 @@ declare(strict_types=1);
         $mode = 3;
         break;
     default:
-        echo $obj['operating_mode_efoy'];
+        echo $obj->operating_mode_efoy;
 }
 
             SetValue($this->GetIDForIdent('OperatingState'), $state);
             SetValue($this->GetIDForIdent('OperatingMode'), $mode);
 
-			$difference =  time() -strtotime($obj['timestamp']);
+			$difference =  time() -strtotime($obj->timestamp);
 			SetValue($this->GetIDForIdent('ConnectionError'), ($difference > $this->ReadPropertyInteger('ConnectionWarningInterval'))&& $this->ReadPropertyInteger('ConnectionWarningInterval')> 0 );
 			
             /*
@@ -420,5 +376,10 @@ declare(strict_types=1);
             */
 
             $this->SetStatus(102); // Instanz aktiv
+			}
+			catch (Exception $e) 
+			{
+				echo 'Exception abgefangen: ',  $e->getMessage(), "\n";
+			}
         }
     }

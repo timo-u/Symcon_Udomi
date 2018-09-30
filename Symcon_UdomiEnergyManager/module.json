@@ -7,8 +7,8 @@
 	[
 		"Udomi Energy Manager"
 	],
-	"parentRequirements": [],
+	"parentRequirements": ["{C5D651BF-3DEF-4346-BB30-C8A98106B115}"],
 	"childRequirements": [],
-	"implemented": [],
+	"implemented": ["{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}"],
 	"prefix": "Udomi"
 }

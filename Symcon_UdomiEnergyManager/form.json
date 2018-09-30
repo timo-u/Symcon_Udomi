@@ -1,8 +1,6 @@
 {
     "elements":
     [
-        { "type": "ValidationTextBox", "name": "User", "caption": "User" },
-        { "type": "PasswordTextBox", "name": "Password", "caption": "Password" },
         { "type": "ValidationTextBox", "name": "IMEI", "caption": "IMEI" },
 			{ "type": "Select", "name": "UpdateInterval", "caption": "UpdateInterval",
             "options": [

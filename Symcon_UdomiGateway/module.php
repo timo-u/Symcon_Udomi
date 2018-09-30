@@ -169,7 +169,18 @@ declare(strict_types=1);
         }
 		}
 		
-		public function GetData(string $action)
+		public function ForwardData($JSONString)
+        {
+			IPS_LogMessage('Symcon_Udomi/UdomiGateway',"ForwardData Data: ".$JSONString);
+			// Receive data from child
+            $data = json_decode($JSONString);
+			$data = $data->Buffer;
+            $action = $data->action;
+			$imei = $data->imei;
+            return $this->GetData($action,$imei);
+        }
+		
+		public function GetData(string $action, string $imei)
         {
            for ($i = 1; $i <= 3; $i++) 
 			{
@@ -199,7 +210,7 @@ declare(strict_types=1);
             curl_close($curl);
 
             if ($err) {
-                echo 'cURL Error #:'.$err;
+                //echo 'cURL Error #:'.$err;
                 $this->SetStatus(201);
 
                 return;
@@ -208,19 +219,24 @@ declare(strict_types=1);
             $obj = json_decode($response, true);
 
             if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
-                echo $obj['message'];
+                //echo $obj['message'];
                 IPS_LogMessage('Symcon_Udomi', 'Error: '.$obj['message']);
-                if ($obj['message'] == 'IMEI is not assigned to user or does not exist.') {
-                    $this->SetStatus(203);
-                } // IMEI is not assigned to user or does not exist.
-                else {
-                    $this->SetStatus(204);
-                } // IMEI is not assigned to user or does not exist.
+				$data = [
+					'error' => $obj['message'],
+					'imei'=> $imei,
+					'response'=> null
+					];
+				$this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
                 return;
             }
+			$data = [
+            'response' => $obj,
+			'imei'=> $imei
+			
+            ];
 
-            //print_r( $obj );
-            IPS_LogMessage('Symcon_UdomiGateway', $response);
+			IPS_LogMessage('Symcon_Udomi/UdomiGateway',"SendDataToChildren Data: ". $response);
+			$this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
 			return;
             }
 
