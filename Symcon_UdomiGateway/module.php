@@ -17,6 +17,7 @@ declare(strict_types=1);
         {
             //Never delete this line!
             parent::ApplyChanges(); 
+			$this->SendDebug("ApplyChanges()", "Save settings and reconnect.", 0);
             $this->Connect();
         }
 
@@ -51,29 +52,25 @@ declare(strict_types=1);
             curl_close($curl);
 
             if ($err) {
-                echo 'cURL Error #:'.$err;
                 $this->SetStatus(201);
-
+				$this->SendDebug("Connect()", 'cURL Error #:'.$err, 0);
                 return;
             }
 
             $obj = json_decode($response, true);
 
             if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
-                echo $this->Translate($obj['message']);
                 IPS_LogMessage('Symcon_Udomi', 'Fehler: '.$this->Translate($obj['message']));
-				$this->SendDebug("Connect", 'Error: '.$obj['message'], 0);
-				$this->SendDebug("Connect", "Token=> ", 0);
+				$this->SendDebug("Connect()", 'Error: '.$obj['message'], 0);
+				$this->SendDebug("Connect()", "Token=> ", 0);
 				$this->SetBuffer("Token", "");
                 $this->SetStatus(202); // Authentication failed
                 return false;
             }
 
             $token = $obj['token'];
-			
 			$this->SetBuffer("Token", $token);
-			$this->SendDebug("Connect", "Token=> ". $token, 0);
- 
+			$this->SendDebug("Connect()", "Connection successfull: Token=> ". $token, 0);
             $this->SetStatus(102); // Instanz aktiv
 			return true;
         }
@@ -111,7 +108,7 @@ declare(strict_types=1);
 				$http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 			if($http_code !=200) 
 			{
-				$this->SendDebug("GetDevices", "StatusCode=> ". $http_code, 0);
+				$this->SendDebug("GetDevices()", "StatusCode=> ". $http_code, 0);
 				if(!$err)
 				{
 					$err ="HTTP StatusCode: ".$http_code;
@@ -123,15 +120,13 @@ declare(strict_types=1);
 			
             if($err) 
 			{
-                
-                $this->SetStatus(201);
-				$this->SendDebug("GetDevices", "cURL Error=> ". $err, 0);
+               
+				$this->SendDebug("GetDevices()", "cURL Error=> ". $err, 0);
 				if ($this->Connect())
 				{
 					continue;
 	
                 }	
-				echo 'cURL Error #:'.$err;
 				return;
             }
 
@@ -140,7 +135,7 @@ declare(strict_types=1);
             
 			if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
 				
-				$this->SendDebug("GetDevices", 'Error: '.$obj['message'], 0);
+				$this->SendDebug("GetDevices()", 'Error: '.$obj['message'], 0);
                 
 				if ($obj['message'] == 'The used token is invalid.') {
                     if($run>0)
@@ -160,9 +155,8 @@ declare(strict_types=1);
             }
 		
             print_r( $obj );
-			
-            IPS_LogMessage('Symcon_UdomiGateway', $response);
-			$this->SendDebug("GetDevices", "Response => ". $response, 0);
+
+			$this->SendDebug("GetDevices()", "Response => ". $response, 0);
 			
 			return $obj;
             
@@ -171,7 +165,7 @@ declare(strict_types=1);
 		
 		public function ForwardData($JSONString)
         {
-			IPS_LogMessage('Symcon_Udomi/UdomiGateway',"ForwardData Data: ".$JSONString);
+			$this->SendDebug("ForwardData()", $JSONString, 0);
 			// Receive data from child
             $data = json_decode($JSONString);
 			$data = $data->Buffer;
@@ -184,8 +178,13 @@ declare(strict_types=1);
         {
            for ($i = 1; $i <= 3; $i++) 
 			{
+			if($i>1)		
+			{
+				$this->SendDebug("GetData()", $i . " run", 0);
+			}
+			
 			$token = $this->GetBuffer("Token");
-		   
+		
 			
             $curl = curl_init();
 
@@ -210,17 +209,29 @@ declare(strict_types=1);
             curl_close($curl);
 
             if ($err) {
-                //echo 'cURL Error #:'.$err;
-                $this->SetStatus(201);
-
+                $this->SendDebug("GetData()", 'cURL Error #:'.$err, 0);
+				$data = [
+					'error' => 'cURL Error #:'.$err,
+					'imei'=> $imei,
+					'response'=> null
+					];
+				$this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
                 return;
             }
 
             $obj = json_decode($response, true);
 
             if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
-                //echo $obj['message'];
-                IPS_LogMessage('Symcon_Udomi', 'Error: '.$obj['message']);
+				if($obj['message'] == "The used token is invalid.")
+				{
+					$this->SendDebug("GetData()", "The used token is invalid. Reconnect and retry API-call.", 0);     
+					if ($this->Connect())
+						{
+							continue;
+						}					
+				}
+				
+				$this->SendDebug("GetData()", 'Error: '.$obj['message'], 0);           
 				$data = [
 					'error' => $obj['message'],
 					'imei'=> $imei,
@@ -230,12 +241,12 @@ declare(strict_types=1);
                 return;
             }
 			$data = [
+			'error' => null,
             'response' => $obj,
 			'imei'=> $imei
-			
             ];
-
-			IPS_LogMessage('Symcon_Udomi/UdomiGateway',"SendDataToChildren Data: ". $response);
+			
+			$this->SendDebug("GetData()", "SendDataToChildren Data: ". $response, 0);
 			$this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
 			return;
             }

@@ -50,6 +50,7 @@ declare(strict_types=1);
         {
             //Never delete this line!
             parent::ApplyChanges();
+			$this->SendDebug("ApplyChanges()", "Save settings and update.", 0);
             $this->SetTimerInterval('Update', $this->ReadPropertyInteger('UpdateInterval') * 1000);
 
             if ($this->ReadPropertyBoolean('Logging')) {
@@ -179,6 +180,7 @@ declare(strict_types=1);
 
                 IPS_ApplyChanges($archiveId);
             }
+			$this->UpdateEnergyManager();
         }
 
         private function RegisterVariableProfiles()
@@ -247,7 +249,7 @@ declare(strict_types=1);
 			'imei' => $imei
             ];
 			
-			IPS_LogMessage('Symcon_Udomi/EnergyManager',"SendDataToParent Data: ".json_encode( $data));
+			$this->SendDebug("UpdateEnergyManager()", "SendDataToParent Data: ".json_encode( $data), 0);
 			
 			$this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data])); 
 			return;
@@ -255,35 +257,42 @@ declare(strict_types=1);
 		
 		   public function ReceiveData($JSONString)
         {
-			
-			try
-			{
-				
+			$this->SendDebug("ReceiveData()", "JSONString: ".$JSONString, 0);
+
 			// Receive data from Gateway
             $data = json_decode($JSONString);
 
             $data = $data->Buffer;
             if($data->imei != $this->ReadPropertyString('IMEI'))
 				return;
-			IPS_LogMessage('Symcon_Udomi/EnergyManager',"ReceiveData Data: ".$JSONString);
 			
-			if(property_exists($data, "error"))
-			{
-				IPS_LogMessage('Symcon_Udomi/EnergyManager',"Has Error: ".$data->error);
-			}
+			$this->SendDebug("ReceiveData()", "IMEI match: ". $data->imei , 0);
 			
-		
-			
+			$err = $data->error;
 			$obj = $data->response;
-		
+
+			if($err!=null)
+			{
+				$this->SendDebug("ReceiveData()", "Error: " . $err , 0);
+				
+				if ($err == 'IMEI is not assigned to user or does not exist.') {
+                    $this->SetStatus(201); 			// IMEI is not assigned to user or does not exist.
+                } 
+                elseif ($err == 'The used token is invalid.') {
+                    $this->SetStatus(202);			// Error
+                } 
+				else {
+                    $this->SetStatus(203);			// Error
+                } 
+			}
+
 
 			if($obj == null) 
 			{	
+				$this->SendDebug("ReceiveData()", "No response" , 0);
 				return true;	
 			}	
 			
-            //print_r( $obj );
-            //IPS_LogMessage('Symcon_Udomi', $response);
 
             SetValue($this->GetIDForIdent('BatteryVoltage'), $obj->battery_voltage_efoy);
             SetValue($this->GetIDForIdent('MethanolConsumed'), $obj->methanol_consumed_efoy);
@@ -306,10 +315,11 @@ declare(strict_types=1);
 			SetValue($this->GetIDForIdent('AlarmSolar'), $obj->alarm_solar);
 			
             $state = 0;
+			
             switch ($obj->operating_state_efoy) {
-    case 'auto off':
-        $state = 1;
-        break;
+				case 'auto off':
+				$state = 1;
+				break;
     case 'auto on':
         $state = 2;
         break;
@@ -374,12 +384,9 @@ declare(strict_types=1);
 			"charge_daily_solar": 0,
 			"load_daily_solar": 0
             */
-
+			
+			$this->SendDebug("ReceiveData()", "Update finnished" , 0);
             $this->SetStatus(102); // Instanz aktiv
-			}
-			catch (Exception $e) 
-			{
-				echo 'Exception abgefangen: ',  $e->getMessage(), "\n";
-			}
+			
         }
     }

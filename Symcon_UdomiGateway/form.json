@@ -6,7 +6,7 @@
 	],
     "actions":
     [
-        { "type": "Button", "label": "Update", "onClick": "UDOMI_Connect($id);" },
+        { "type": "Button", "label": "Connect", "onClick": "UDOMI_Connect($id);" },
 		{ "type": "Button", "label": "Get Devices", "onClick": "UDOMI_GetDevices($id);" }
     ],
     "status":

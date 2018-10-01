@@ -41,7 +41,7 @@ declare(strict_types=1);
             //Never delete this line!
             parent::ApplyChanges();
             $this->SetTimerInterval('Update', $this->ReadPropertyInteger('UpdateInterval') * 1000);
-
+			$this->SendDebug("ApplyChanges()", "Save settings and update.", 0);
             if ($this->ReadPropertyBoolean('Logging')) {
                 $archiveId = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
 
@@ -112,10 +112,12 @@ declare(strict_types=1);
 
                 IPS_ApplyChanges($archiveId);
             }
+			$this->UpdateFuelCell();
         }
 
         private function RegisterVariableProfiles()
         {
+			$this->SendDebug("RegisterVariableProfiles()", "RegisterVariableProfiles()", 0);
             if (!IPS_VariableProfileExists('Udomi_OperatingState')) {
                 IPS_CreateVariableProfile('Udomi_OperatingState', 1);
                 IPS_SetVariableProfileAssociation('Udomi_OperatingState', 0, $this->Translate('Unknown'), '', -1);
@@ -172,20 +174,19 @@ declare(strict_types=1);
 
         public function UpdateFuelCell()
         {
-            
             $imei = $this->ReadPropertyString('IMEI');
 			
 			$data = [
-            'action' => "fuelcell/" . $imei,
-			'imei' => $imei
+				'action' => "fuelcell/" . $imei,
+				'imei' => $imei
             ];
-			IPS_LogMessage('Symcon_Udomi/FuelCell',"SendDataToParent Data: ".json_encode( $data));
-			 return $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
+			$this->SendDebug("UpdateFuelCell()", "SendDataToParent Data: ".json_encode( $data), 0);
+			return $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
 		}
 		
 		   public function ReceiveData($JSONString)
         {
-			
+			$this->SendDebug("ReceiveData()", "JSONString: ".$JSONString, 0);
 			// Receive data from Gateway
             $data = json_decode($JSONString);
 
@@ -193,26 +194,36 @@ declare(strict_types=1);
             
 			if($data->imei != $this->ReadPropertyString('IMEI'))
 				return;
-			IPS_LogMessage('Symcon_Udomi/FuelCell',"ReceiveData Data: ".$JSONString);
+			
+			$this->SendDebug("ReceiveData()", "IMEI match: ". $data->imei , 0);
+			
 			$obj = $data->response;
-			//  $obj = json_decode($response, true);
+			$obj = $data->response;
+			$err = $data->error;
 
-            if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
-                echo $obj['message'];
-                IPS_LogMessage('Symcon_Udomi', 'Error: '.$obj['message']);
-                if ($obj['message'] == 'IMEI is not assigned to user or does not exist.') {
-                    $this->SetStatus(203);
-                } // IMEI is not assigned to user or does not exist.
-                else {
-                    $this->SetStatus(204);
-                } // IMEI is not assigned to user or does not exist.
-                return;
-            }
+			if($err!=null)
+			{
+				$this->SendDebug("ReceiveData()", "Error: " . $err , 0);
+				
+				if ($err == 'IMEI is not assigned to user or does not exist.') {
+                    $this->SetStatus(201); 			// IMEI is not assigned to user or does not exist.
+                } 
+                elseif ($err == 'The used token is invalid.') {
+                    $this->SetStatus(202);			// Error
+                } 
+				else {
+                    $this->SetStatus(203);			// Error
+                } 
+			}
+			
+		
+			if($obj == null)
+			{
+				$this->SendDebug("ReceiveData()", "No response" , 0);
+				return;
+			}
 
-            //print_r( $obj );
-            //IPS_LogMessage('Symcon_Udomi', $response);
-
-            SetValue($this->GetIDForIdent('BatteryVoltage'), $obj->battery_voltage_efoy);
+			SetValue($this->GetIDForIdent('BatteryVoltage'), $obj->battery_voltage_efoy);
             SetValue($this->GetIDForIdent('MethanolConsumed'), $obj->methanol_consumed_efoy);
             SetValue($this->GetIDForIdent('CartridgeLow'), $obj->cartridge_low_efoy);
             SetValue($this->GetIDForIdent('HasProblem'), ($obj->error_efoy != 'no error' || $obj->warning_efoy != 'no warning' ));
@@ -278,7 +289,8 @@ declare(strict_types=1);
             "error_efoy": "no error",
             "warning_efoy": "no warning"
             */
-
+			
+			$this->SendDebug("ReceiveData()", "Update finnished" , 0);
             $this->SetStatus(102); // Instanz aktiv
         }
     }
