@@ -8,8 +8,8 @@ declare(strict_types=1);
             //Never delete this line!
             parent::Create();
 
-			$this->ConnectParent("{4A56243C-780E-4352-839C-C81A109042ED}");
-			
+            $this->ConnectParent('{4A56243C-780E-4352-839C-C81A109042ED}');
+
             $this->RegisterPropertyString('IMEI', '357299070039042');
             $this->RegisterPropertyBoolean('Logging', false);
             $this->RegisterPropertyInteger('UpdateInterval', 3600);
@@ -48,7 +48,7 @@ declare(strict_types=1);
         {
             //Never delete this line!
             parent::ApplyChanges();
-			$this->SendDebug("ApplyChanges()", "Save settings and update.", 0);
+            $this->SendDebug('ApplyChanges()', 'Save settings and update.', 0);
             $this->SetTimerInterval('Update', $this->ReadPropertyInteger('UpdateInterval') * 1000);
 
             if ($this->ReadPropertyBoolean('Logging')) {
@@ -84,13 +84,13 @@ declare(strict_types=1);
 
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('Cartridge'), true);
 
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('AlarmSolar'), true);
-				
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
-				AC_SetAggregationType($archiveId, $this->GetIDForIdent('ConnectionError'), 0); // 0 Standard, 1 Zähler
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('AlarmSolar'), true);
+
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
+                AC_SetAggregationType($archiveId, $this->GetIDForIdent('ConnectionError'), 0); // 0 Standard, 1 Zähler
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
-				
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('TemperatureHeatsink'), true);
+
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('TemperatureHeatsink'), true);
 
                 AC_SetAggregationType($archiveId, $this->GetIDForIdent('TemperatureHeatsink'), 0); // 0 Standard, 1 Zähler
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('TemperatureHeatsink'), true);
@@ -147,12 +147,12 @@ declare(strict_types=1);
 
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('Cartridge'), false);
 
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('AlarmSolar'), false);
-				
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('AlarmSolar'), false);
+
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);
-				
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('TemperatureHeatsink'), false);
+
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('TemperatureHeatsink'), false);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('TemperatureHeatsink'), false);
 
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('TemperatureBattery'), false);
@@ -175,7 +175,7 @@ declare(strict_types=1);
 
                 IPS_ApplyChanges($archiveId);
             }
-			$this->UpdateEnergyManager();
+            $this->UpdateEnergyManager();
         }
 
         private function RegisterVariableProfiles()
@@ -236,59 +236,52 @@ declare(strict_types=1);
 
         public function UpdateEnergyManager()
         {
-
             $imei = $this->ReadPropertyString('IMEI');
 
-			$data = [
-            'action' => "energymanager/" . $imei,
-			'imei' => $imei
+            $data = [
+            'action' => 'energymanager/'.$imei,
+            'imei'   => $imei,
             ];
-			
-			$this->SendDebug("UpdateEnergyManager()", "SendDataToParent Data: ".json_encode( $data), 0);
-			
-			$this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data])); 
-			return;
-		}
-		
-		   public function ReceiveData($JSONString)
-        {
-			$this->SendDebug("ReceiveData()", "JSONString: ".$JSONString, 0);
 
-			// Receive data from Gateway
+            $this->SendDebug('UpdateEnergyManager()', 'SendDataToParent Data: '.json_encode($data), 0);
+
+            $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
+        }
+
+        public function ReceiveData($JSONString)
+        {
+            $this->SendDebug('ReceiveData()', 'JSONString: '.$JSONString, 0);
+
+            // Receive data from Gateway
             $data = json_decode($JSONString);
 
             $data = $data->Buffer;
-            if($data->imei != $this->ReadPropertyString('IMEI'))
-				return;
-			
-			$this->SendDebug("ReceiveData()", "IMEI match: ". $data->imei , 0);
-			
-			$err = $data->error;
-			$obj = $data->response;
+            if ($data->imei != $this->ReadPropertyString('IMEI')) {
+                return;
+            }
 
-			if($err!=null)
-			{
-				$this->SendDebug("ReceiveData()", "Error: " . $err , 0);
-				
-				if ($err == 'IMEI is not assigned to user or does not exist.') {
+            $this->SendDebug('ReceiveData()', 'IMEI match: '.$data->imei, 0);
+
+            $err = $data->error;
+            $obj = $data->response;
+
+            if ($err != null) {
+                $this->SendDebug('ReceiveData()', 'Error: '.$err, 0);
+
+                if ($err == 'IMEI is not assigned to user or does not exist.') {
                     $this->SetStatus(201); 			// IMEI is not assigned to user or does not exist.
-                } 
-                elseif ($err == 'The used token is invalid.') {
+                } elseif ($err == 'The used token is invalid.') {
                     $this->SetStatus(202);			// Error
-                } 
-				else {
+                } else {
                     $this->SetStatus(203);			// Error
-                } 
-			}
+                }
+            }
 
+            if ($obj == null) {
+                $this->SendDebug('ReceiveData()', 'No response', 0);
 
-			if($obj == null) 
-			{	
-				$this->SendDebug("ReceiveData()", "No response" , 0);
-				return true;	
-			}	
-			
-
+                return true;
+            }
 
             SetValue($this->GetIDForIdent('BatteryVoltage'), $obj->battery_voltage_efoy);
             SetValue($this->GetIDForIdent('MethanolConsumed'), $obj->methanol_consumed_efoy);
@@ -301,21 +294,21 @@ declare(strict_types=1);
             SetValue($this->GetIDForIdent('Cartridge'), $obj->cartridge_efoy);
             SetValue($this->GetIDForIdent('OutputEnergy'), $obj->cumulative_output_energy_efoy);
 
-			SetValue($this->GetIDForIdent('TemperatureHeatsink'), $obj->t_heatsink_solar);
-			SetValue($this->GetIDForIdent('TemperatureBattery'), $obj->t_batt_solar);
-			SetValue($this->GetIDForIdent('ArrayVoltage'), $obj->array_voltage_solar);
-			SetValue($this->GetIDForIdent('SolarChargeCurrent'), $obj->i_charge_solar);
-			SetValue($this->GetIDForIdent('SolarLoadCurrent'), $obj->i_load_solar);
-			SetValue($this->GetIDForIdent('DaylySolarCharge'), $obj->charge_daily_solar);
-			SetValue($this->GetIDForIdent('DaylyLoadCharge'), $obj->load_daily_solar);
-			SetValue($this->GetIDForIdent('AlarmSolar'), $obj->alarm_solar);
-			
+            SetValue($this->GetIDForIdent('TemperatureHeatsink'), $obj->t_heatsink_solar);
+            SetValue($this->GetIDForIdent('TemperatureBattery'), $obj->t_batt_solar);
+            SetValue($this->GetIDForIdent('ArrayVoltage'), $obj->array_voltage_solar);
+            SetValue($this->GetIDForIdent('SolarChargeCurrent'), $obj->i_charge_solar);
+            SetValue($this->GetIDForIdent('SolarLoadCurrent'), $obj->i_load_solar);
+            SetValue($this->GetIDForIdent('DaylySolarCharge'), $obj->charge_daily_solar);
+            SetValue($this->GetIDForIdent('DaylyLoadCharge'), $obj->load_daily_solar);
+            SetValue($this->GetIDForIdent('AlarmSolar'), $obj->alarm_solar);
+
             $state = 0;
-			
+
             switch ($obj->operating_state_efoy) {
-				case 'auto off':
-				$state = 1;
-				break;
+                case 'auto off':
+                $state = 1;
+                break;
     case 'auto on':
         $state = 2;
         break;
@@ -347,10 +340,9 @@ declare(strict_types=1);
             SetValue($this->GetIDForIdent('OperatingState'), $state);
             SetValue($this->GetIDForIdent('OperatingMode'), $mode);
 
+            $difference = time() - strtotime($obj->timestamp);
+            SetValue($this->GetIDForIdent('ConnectionError'), ($difference > $this->ReadPropertyInteger('ConnectionWarningInterval')) && $this->ReadPropertyInteger('ConnectionWarningInterval') > 0);
 
-			$difference =  time() -strtotime($obj->timestamp);
-			SetValue($this->GetIDForIdent('ConnectionError'), ($difference > $this->ReadPropertyInteger('ConnectionWarningInterval'))&& $this->ReadPropertyInteger('ConnectionWarningInterval')> 0 );
-			
             /*
             Sample:
 
@@ -381,9 +373,8 @@ declare(strict_types=1);
             "charge_daily_solar": 0,
             "load_daily_solar": 0
             */
-			
-			$this->SendDebug("ReceiveData()", "Update finnished" , 0);
+
+            $this->SendDebug('ReceiveData()', 'Update finnished', 0);
             $this->SetStatus(102); // Instanz aktiv
-			
         }
     }
