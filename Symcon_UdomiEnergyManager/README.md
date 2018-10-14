@@ -1,3 +1,5 @@
-# Symcon_Udomi
+# Udomi Energy Manager	
 
-Das NModul beinhaltet eine Instanz für die Brennstoffzelle und eine für den Energie-Manager
+Diese Instanz bildet eine Brennstoffzelle mit zusätzlichem Solar-Laderegler (Energy Manager) ab. 
+
+Die Autorisierung am Webportal wird durch die Udomi Gateway Instanz durchgeführt. 

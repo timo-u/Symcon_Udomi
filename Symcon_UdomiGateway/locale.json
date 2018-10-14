@@ -5,7 +5,8 @@
 			"Password" : "Passwort",
 			"Update" : "Aktualisieren",
 			"Authentication failed" : "Authentifikation fehlgeschlagen",
-			"Connect" : "Verbinden",	
+			"Connect" : "Verbinden",
+			"Get Devices" : "Geräte abrufen",
 			"Active" : "Aktiv",
 			"Connection failed" : "Verbindung fehlgeschlagen",
 			"Wrong username or password" : "Benutername oder Password falsch"
