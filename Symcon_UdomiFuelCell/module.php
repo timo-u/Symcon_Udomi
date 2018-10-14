@@ -8,8 +8,8 @@ declare(strict_types=1);
             //Never delete this line!
             parent::Create();
 
-			$this->ConnectParent("{4A56243C-780E-4352-839C-C81A109042ED}");
-			
+            $this->ConnectParent('{4A56243C-780E-4352-839C-C81A109042ED}');
+
             $this->RegisterPropertyString('IMEI', '356612020375954');
             $this->RegisterPropertyBoolean('Logging', false);
             $this->RegisterPropertyInteger('UpdateInterval', 3600);
@@ -41,7 +41,7 @@ declare(strict_types=1);
             //Never delete this line!
             parent::ApplyChanges();
             $this->SetTimerInterval('Update', $this->ReadPropertyInteger('UpdateInterval') * 1000);
-			$this->SendDebug("ApplyChanges()", "Save settings and update.", 0);
+            $this->SendDebug('ApplyChanges()', 'Save settings and update.', 0);
             if ($this->ReadPropertyBoolean('Logging')) {
                 $archiveId = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
 
@@ -74,9 +74,9 @@ declare(strict_types=1);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('OutputEnergy'), true);
 
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('Cartridge'), true);
-								
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
-				AC_SetAggregationType($archiveId, $this->GetIDForIdent('ConnectionError'), 0); // 0 Standard, 1 Zähler
+
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
+                AC_SetAggregationType($archiveId, $this->GetIDForIdent('ConnectionError'), 0); // 0 Standard, 1 Zähler
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
 
                 IPS_ApplyChanges($archiveId);
@@ -96,10 +96,10 @@ declare(strict_types=1);
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('HasProblem'), false);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('HasProblem'), false);
 
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);
-                AC_SetGraphStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);  
- 
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('OutputCurrent'), false);
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);
+                AC_SetGraphStatus($archiveId, $this->GetIDForIdent('ConnectionError'), false);
+
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('OutputCurrent'), false);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('OutputCurrent'), false);
 
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('OperationTime'), false);
@@ -112,12 +112,12 @@ declare(strict_types=1);
 
                 IPS_ApplyChanges($archiveId);
             }
-			$this->UpdateFuelCell();
+            $this->UpdateFuelCell();
         }
 
         private function RegisterVariableProfiles()
         {
-			$this->SendDebug("RegisterVariableProfiles()", "RegisterVariableProfiles()", 0);
+            $this->SendDebug('RegisterVariableProfiles()', 'RegisterVariableProfiles()', 0);
             if (!IPS_VariableProfileExists('Udomi_OperatingState')) {
                 IPS_CreateVariableProfile('Udomi_OperatingState', 1);
                 IPS_SetVariableProfileAssociation('Udomi_OperatingState', 0, $this->Translate('Unknown'), '', -1);
@@ -175,58 +175,56 @@ declare(strict_types=1);
         public function UpdateFuelCell()
         {
             $imei = $this->ReadPropertyString('IMEI');
-			
-			$data = [
-				'action' => "fuelcell/" . $imei,
-				'imei' => $imei
+
+            $data = [
+                'action' => 'fuelcell/'.$imei,
+                'imei'   => $imei,
             ];
-			$this->SendDebug("UpdateFuelCell()", "SendDataToParent Data: ".json_encode( $data), 0);
-			return $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
-		}
-		
-		   public function ReceiveData($JSONString)
+            $this->SendDebug('UpdateFuelCell()', 'SendDataToParent Data: '.json_encode($data), 0);
+
+            return $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
+        }
+
+        public function ReceiveData($JSONString)
         {
-			$this->SendDebug("ReceiveData()", "JSONString: ".$JSONString, 0);
-			// Receive data from Gateway
+            $this->SendDebug('ReceiveData()', 'JSONString: '.$JSONString, 0);
+            // Receive data from Gateway
             $data = json_decode($JSONString);
 
             $data = $data->Buffer;
-            
-			if($data->imei != $this->ReadPropertyString('IMEI'))
-				return;
-			
-			$this->SendDebug("ReceiveData()", "IMEI match: ". $data->imei , 0);
-			
-			$obj = $data->response;
-			$obj = $data->response;
-			$err = $data->error;
 
-			if($err!=null)
-			{
-				$this->SendDebug("ReceiveData()", "Error: " . $err , 0);
-				
-				if ($err == 'IMEI is not assigned to user or does not exist.') {
+            if ($data->imei != $this->ReadPropertyString('IMEI')) {
+                return;
+            }
+
+            $this->SendDebug('ReceiveData()', 'IMEI match: '.$data->imei, 0);
+
+            $obj = $data->response;
+            $obj = $data->response;
+            $err = $data->error;
+
+            if ($err != null) {
+                $this->SendDebug('ReceiveData()', 'Error: '.$err, 0);
+
+                if ($err == 'IMEI is not assigned to user or does not exist.') {
                     $this->SetStatus(201); 			// IMEI is not assigned to user or does not exist.
-                } 
-                elseif ($err == 'The used token is invalid.') {
+                } elseif ($err == 'The used token is invalid.') {
                     $this->SetStatus(202);			// Error
-                } 
-				else {
+                } else {
                     $this->SetStatus(203);			// Error
-                } 
-			}
-			
-		
-			if($obj == null)
-			{
-				$this->SendDebug("ReceiveData()", "No response" , 0);
-				return;
-			}
+                }
+            }
 
-			SetValue($this->GetIDForIdent('BatteryVoltage'), $obj->battery_voltage_efoy);
+            if ($obj == null) {
+                $this->SendDebug('ReceiveData()', 'No response', 0);
+
+                return;
+            }
+
+            SetValue($this->GetIDForIdent('BatteryVoltage'), $obj->battery_voltage_efoy);
             SetValue($this->GetIDForIdent('MethanolConsumed'), $obj->methanol_consumed_efoy);
             SetValue($this->GetIDForIdent('CartridgeLow'), $obj->cartridge_low_efoy);
-            SetValue($this->GetIDForIdent('HasProblem'), ($obj->error_efoy != 'no error' || $obj->warning_efoy != 'no warning' ));
+            SetValue($this->GetIDForIdent('HasProblem'), ($obj->error_efoy != 'no error' || $obj->warning_efoy != 'no warning'));
 
             SetValue($this->GetIDForIdent('OutputCurrent'), $obj->output_current_efoy);
             SetValue($this->GetIDForIdent('OperationTime'), $obj->operation_time_efoy);
@@ -270,9 +268,8 @@ declare(strict_types=1);
             SetValue($this->GetIDForIdent('OperatingState'), $state);
             SetValue($this->GetIDForIdent('OperatingMode'), $mode);
 
-			$difference =  time() -strtotime($obj->timestamp);
-			SetValue($this->GetIDForIdent('ConnectionError'), ($difference > $this->ReadPropertyInteger('ConnectionWarningInterval'))&& $this->ReadPropertyInteger('ConnectionWarningInterval')> 0 );
-			
+            $difference = time() - strtotime($obj->timestamp);
+            SetValue($this->GetIDForIdent('ConnectionError'), ($difference > $this->ReadPropertyInteger('ConnectionWarningInterval')) && $this->ReadPropertyInteger('ConnectionWarningInterval') > 0);
 
             /*
             Sample:
@@ -290,8 +287,8 @@ declare(strict_types=1);
             "error_efoy": "no error",
             "warning_efoy": "no warning"
             */
-			
-			$this->SendDebug("ReceiveData()", "Update finnished" , 0);
+
+            $this->SendDebug('ReceiveData()', 'Update finnished', 0);
             $this->SetStatus(102); // Instanz aktiv
         }
     }
