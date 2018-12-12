@@ -194,8 +194,14 @@ declare(strict_types=1);
                     'imei'    => $imei,
                     'response'=> null,
                     ];
-                    $this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
-
+						try
+						{
+							$this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
+						} catch (Exception $e) 
+						{
+							$this->SendDebug('GetData()', 'SendDataToChildren CURL Error  Exception : '.$e), 0);
+							IPS_LogMessage("UdomiGateway",'SendDataToChildren() CURL Error => Exception : '.$e);
+						}
                     return;
                 }
 
@@ -215,8 +221,14 @@ declare(strict_types=1);
                     'imei'    => $imei,
                     'response'=> null,
                     ];
-                    $this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
-
+                    try
+						{
+							$this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
+						} catch (Exception $e) 
+						{
+							$this->SendDebug('GetData()', 'SendDataToChildren API Error  Exception : '.$e), 0);
+							IPS_LogMessage("UdomiGateway",'SendDataToChildren() API Error => Exception : '.$e);
+						}
                     return;
                 }
                 $data = [
@@ -226,8 +238,14 @@ declare(strict_types=1);
             ];
 
                 $this->SendDebug('GetData()', 'SendDataToChildren Data: '.$response, 0);
-                $this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
-
+				try
+				{
+					$this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
+				} catch (Exception $e) 
+				{
+					$this->SendDebug('GetData()', 'SendDataToChildren Exception : '.$e), 0);
+					IPS_LogMessage("UdomiGateway",'SendDataToChildren() Exception : '.$e);
+				}
                 return;
             }
         }
