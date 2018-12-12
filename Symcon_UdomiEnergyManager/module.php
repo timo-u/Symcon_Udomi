@@ -258,7 +258,7 @@ declare(strict_types=1);
 			{
 				$this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
 			} catch (Exception $e) {
-				$this->SendDebug('UpdateFuelCell()', 'Exception : '.$e), 0);
+				$this->SendDebug('UpdateFuelCell()', 'Exception : '.$e, 0);
 				IPS_LogMessage("UdomiEnergyManager",'UpdateFuelCell() Exception : '.$e);
 			}
         }
