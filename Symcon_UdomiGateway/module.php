@@ -57,7 +57,8 @@ declare(strict_types=1);
             $obj = json_decode($response, true);
 			if($obj == null)
 				{
-					IPS_LogMessage("UdomiGateway",'Connect() response object == null');
+					IPS_LogMessage("UdomiGateway",'Connect() response object == null (Server-Error)');
+					$this->SendDebug('Connect()', 'Resposne is an invalid JSON: '.$response , 0);
 					$this->SetStatus(201); // Connection failed
 					return false;
 				}
@@ -214,7 +215,8 @@ declare(strict_types=1);
                 $obj = json_decode($response, true);
 				if($obj == null)
 				{
-					IPS_LogMessage("UdomiGateway",'response object == null');
+					IPS_LogMessage("UdomiGateway",'GetData() response object == null (Server-Error)');
+					$this->SendDebug('GetData()', 'Resposne is an invalid JSON: '.$response , 0);
 					return;
 				}
 				
