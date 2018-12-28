@@ -206,7 +206,13 @@ declare(strict_types=1);
                 }
 
                 $obj = json_decode($response, true);
-
+				if($obj == null)
+				{
+					IPS_LogMessage("UdomiGateway",'response object == null');
+					return;
+				}
+				
+				
                 if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
                     if ($obj['message'] == 'The used token is invalid.') {
                         $this->SendDebug('GetData()', 'The used token is invalid. Reconnect and retry API-call.', 0);
