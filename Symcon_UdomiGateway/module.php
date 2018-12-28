@@ -55,7 +55,13 @@ declare(strict_types=1);
             }
 
             $obj = json_decode($response, true);
-
+			if($obj == null)
+				{
+					IPS_LogMessage("UdomiGateway",'Connect() response object == null');
+					$this->SetStatus(201); // Connection failed
+					return false;
+				}
+			
             if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
                 IPS_LogMessage('Symcon_Udomi', 'Fehler: '.$this->Translate($obj['message']));
                 $this->SendDebug('Connect()', 'Error: '.$obj['message'], 0);
