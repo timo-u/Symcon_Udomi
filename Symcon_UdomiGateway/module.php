@@ -55,14 +55,13 @@ declare(strict_types=1);
             }
 
             $obj = json_decode($response, true);
-			if($obj == null)
-				{
-					IPS_LogMessage("UdomiGateway",'Connect() response object == null (Server-Error)');
-					$this->SendDebug('Connect()', 'Resposne is an invalid JSON: '.$response , 0);
-					$this->SetStatus(201); // Connection failed
-					return false;
-				}
-			
+            if ($obj == null) {
+                IPS_LogMessage('UdomiGateway', 'Connect() response object == null (Server-Error)');
+                $this->SendDebug('Connect()', 'Resposne is an invalid JSON: '.$response, 0);
+                $this->SetStatus(201); // Connection failed
+                return false;
+            }
+
             if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
                 IPS_LogMessage('Symcon_Udomi', 'Fehler: '.$this->Translate($obj['message']));
                 $this->SendDebug('Connect()', 'Error: '.$obj['message'], 0);
@@ -201,26 +200,25 @@ declare(strict_types=1);
                     'imei'    => $imei,
                     'response'=> null,
                     ];
-						try
-						{
-							$this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
-						} catch (Exception $e) 
-						{
-							$this->SendDebug('GetData()', 'SendDataToChildren CURL Error  Exception : '.$e , 0);
-							IPS_LogMessage("UdomiGateway",'SendDataToChildren() CURL Error => Exception : '.$e);
-						}
+
+                    try {
+                        $this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
+                    } catch (Exception $e) {
+                        $this->SendDebug('GetData()', 'SendDataToChildren CURL Error  Exception : '.$e, 0);
+                        IPS_LogMessage('UdomiGateway', 'SendDataToChildren() CURL Error => Exception : '.$e);
+                    }
+
                     return;
                 }
 
                 $obj = json_decode($response, true);
-				if($obj == null)
-				{
-					IPS_LogMessage("UdomiGateway",'GetData() response object == null (Server-Error)');
-					$this->SendDebug('GetData()', 'Resposne is an invalid JSON: '.$response , 0);
-					return;
-				}
-				
-				
+                if ($obj == null) {
+                    IPS_LogMessage('UdomiGateway', 'GetData() response object == null (Server-Error)');
+                    $this->SendDebug('GetData()', 'Resposne is an invalid JSON: '.$response, 0);
+
+                    return;
+                }
+
                 if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
                     if ($obj['message'] == 'The used token is invalid.') {
                         $this->SendDebug('GetData()', 'The used token is invalid. Reconnect and retry API-call.', 0);
@@ -235,14 +233,14 @@ declare(strict_types=1);
                     'imei'    => $imei,
                     'response'=> null,
                     ];
-                    try
-						{
-							$this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
-						} catch (Exception $e) 
-						{
-							$this->SendDebug('GetData()', 'SendDataToChildren API Error  Exception : '.$e, 0);
-							IPS_LogMessage("UdomiGateway",'SendDataToChildren() API Error => Exception : '.$e);
-						}
+
+                    try {
+                        $this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
+                    } catch (Exception $e) {
+                        $this->SendDebug('GetData()', 'SendDataToChildren API Error  Exception : '.$e, 0);
+                        IPS_LogMessage('UdomiGateway', 'SendDataToChildren() API Error => Exception : '.$e);
+                    }
+
                     return;
                 }
                 $data = [
@@ -252,14 +250,14 @@ declare(strict_types=1);
             ];
 
                 $this->SendDebug('GetData()', 'SendDataToChildren Data: '.$response, 0);
-				try
-				{
-					$this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
-				} catch (Exception $e) 
-				{
-					$this->SendDebug('GetData()', 'SendDataToChildren Exception : '.$e, 0);
-					IPS_LogMessage("UdomiGateway",'SendDataToChildren() Exception : '.$e);
-				}
+
+                try {
+                    $this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
+                } catch (Exception $e) {
+                    $this->SendDebug('GetData()', 'SendDataToChildren Exception : '.$e, 0);
+                    IPS_LogMessage('UdomiGateway', 'SendDataToChildren() Exception : '.$e);
+                }
+
                 return;
             }
         }

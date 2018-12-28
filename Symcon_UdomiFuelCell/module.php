@@ -74,11 +74,11 @@ declare(strict_types=1);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('OutputEnergy'), true);
 
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('Cartridge'), true);
-				AC_SetAggregationType($archiveId, $this->GetIDForIdent('Cartridge'), 0); // 0 Standard, 1 Zähler
+                AC_SetAggregationType($archiveId, $this->GetIDForIdent('Cartridge'), 0); // 0 Standard, 1 Zähler
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('Cartridge'), true);
-				
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('OperatingState'), true);
-				AC_SetAggregationType($archiveId, $this->GetIDForIdent('OperatingState'), 0); // 0 Standard, 1 Zähler
+
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('OperatingState'), true);
+                AC_SetAggregationType($archiveId, $this->GetIDForIdent('OperatingState'), 0); // 0 Standard, 1 Zähler
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('OperatingState'), true);
 
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('ConnectionError'), true);
@@ -115,10 +115,10 @@ declare(strict_types=1);
                 AC_SetGraphStatus($archiveId, $this->GetIDForIdent('OutputEnergy'), false);
 
                 AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('Cartridge'), false);
-				AC_SetGraphStatus($archiveId, $this->GetIDForIdent('Cartridge'), false);
-				
-				AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('OperatingState'), false);
-				AC_SetGraphStatus($archiveId, $this->GetIDForIdent('OperatingState'), false);
+                AC_SetGraphStatus($archiveId, $this->GetIDForIdent('Cartridge'), false);
+
+                AC_SetLoggingStatus($archiveId, $this->GetIDForIdent('OperatingState'), false);
+                AC_SetGraphStatus($archiveId, $this->GetIDForIdent('OperatingState'), false);
 
                 IPS_ApplyChanges($archiveId);
             }
@@ -192,14 +192,12 @@ declare(strict_types=1);
             ];
             $this->SendDebug('UpdateFuelCell()', 'SendDataToParent Data: '.json_encode($data), 0);
 
-			try
-			{
-				return $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
-			
-			} catch (Exception $e) {
-				$this->SendDebug('UpdateFuelCell()', 'Exception : '.$e, 0);
-				IPS_LogMessage("UdomiEfoyFuelCell",'UpdateFuelCell() Exception : '.$e);
-			}
+            try {
+                return $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
+            } catch (Exception $e) {
+                $this->SendDebug('UpdateFuelCell()', 'Exception : '.$e, 0);
+                IPS_LogMessage('UdomiEfoyFuelCell', 'UpdateFuelCell() Exception : '.$e);
+            }
         }
 
         public function ReceiveData($JSONString)
