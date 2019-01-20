@@ -199,19 +199,21 @@
                     'imei'    => $imei,
                     'response'=> null,
                     ];
-					return ($data);
+
+                    return $data;
                 }
 
                 $obj = json_decode($response, true);
                 if ($obj == null) {
                     IPS_LogMessage('UdomiGateway', 'GetData() response object == null (Server-Error)');
                     $this->SendDebug('GetData()', 'Resposne is an invalid JSON: '.$response, 0);
-					$data = [
-						'error'   => 'response object is null',
-						'imei'    => $imei,
-						'response'=> null,
-						];
-					return ($data);
+                    $data = [
+                        'error'   => 'response object is null',
+                        'imei'    => $imei,
+                        'response'=> null,
+                        ];
+
+                    return $data;
                 }
 
                 if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
@@ -229,17 +231,17 @@
                     'response'=> null,
                     ];
 
-					return ($data);
+                    return $data;
                 }
                 $data = [
-					'error'    => null,
-					'response' => $obj,
-					'imei'     => $imei,
-					];
+                    'error'    => null,
+                    'response' => $obj,
+                    'imei'     => $imei,
+                    ];
 
                 $this->SendDebug('GetData()', 'SendDataToChildren Data: '.$response, 0);
-				
-                return ($data);
+
+                return $data;
             }
         }
     }
