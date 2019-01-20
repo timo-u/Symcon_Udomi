@@ -196,7 +196,6 @@
                     $this->SendDebug('GetData()', 'cURL Error #:'.$err, 0);
                     $data = [
                     'error'   => 'cURL Error #:'.$err,
-                    'imei'    => $imei,
                     'response'=> null,
                     ];
 
@@ -209,8 +208,7 @@
                     $this->SendDebug('GetData()', 'Resposne is an invalid JSON: '.$response, 0);
                     $data = [
                         'error'   => 'response object is null',
-                        'imei'    => $imei,
-                        'response'=> null,
+						'response'=> null,
                         ];
 
                     return $data;
@@ -227,7 +225,6 @@
                     $this->SendDebug('GetData()', 'Error: '.$obj['message'], 0);
                     $data = [
                     'error'   => $obj['message'],
-                    'imei'    => $imei,
                     'response'=> null,
                     ];
 
@@ -235,7 +232,6 @@
                 }
                 $data = [
                     'error'    => null,
-                    'response' => $obj,
                     'imei'     => $imei,
                     ];
 
