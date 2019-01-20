@@ -191,18 +191,16 @@
             $this->SendDebug('UpdateFuelCell()', 'SendDataToParent Data: '.json_encode($data), 0);
 
             try {
-                $response =  $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
-				
-				$this->handleData(json_decode($response));
-			
-			} catch (Exception $e) {
+                $response = $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
+
+                $this->handleData(json_decode($response));
+            } catch (Exception $e) {
                 $this->SendDebug('UpdateFuelCell()', 'Exception : '.$e, 0);
                 IPS_LogMessage('UdomiEfoyFuelCell', 'UpdateFuelCell() Exception : '.$e);
             }
         }
 
-		
-		 public function handleData(object $data)
+        public function handleData(object $data)
         {
             $obj = $data->response;
             $err = $data->error;
@@ -295,6 +293,4 @@
             $this->SendDebug('ReceiveData()', 'Update finnished', 0);
             $this->SetStatus(102); // Instanz aktiv
         }
-		
-      
     }
