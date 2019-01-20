@@ -208,7 +208,7 @@
                     $this->SendDebug('GetData()', 'Resposne is an invalid JSON: '.$response, 0);
                     $data = [
                         'error'   => 'response object is null',
-						'response'=> null,
+                        'response'=> null,
                         ];
 
                     return $data;
