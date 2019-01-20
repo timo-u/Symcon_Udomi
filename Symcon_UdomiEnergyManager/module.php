@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
     class UdomiEnergyManager extends IPSModule
     {
         public function Create()
@@ -254,27 +253,18 @@ declare(strict_types=1);
             $this->SendDebug('UpdateEnergyManager()', 'SendDataToParent Data: '.json_encode($data), 0);
 
             try {
-                $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
-            } catch (Exception $e) {
+                $response = $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
+				
+				$this->handleData(json_decode($response));
+				
+			} catch (Exception $e) {
                 $this->SendDebug('UpdateFuelCell()', 'Exception : '.$e, 0);
                 IPS_LogMessage('UdomiEnergyManager', 'UpdateFuelCell() Exception : '.$e);
             }
         }
 
-        public function ReceiveData($JSONString)
+        private function handleData(object $data)
         {
-            $this->SendDebug('ReceiveData()', 'JSONString: '.$JSONString, 0);
-
-            // Receive data from Gateway
-            $data = json_decode($JSONString);
-
-            $data = $data->Buffer;
-            if ($data->imei != $this->ReadPropertyString('IMEI')) {
-                return;
-            }
-
-            $this->SendDebug('ReceiveData()', 'IMEI match: '.$data->imei, 0);
-
             $err = $data->error;
             $obj = $data->response;
 

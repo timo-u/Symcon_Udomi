@@ -1,6 +1,4 @@
 <?php
-
-declare(strict_types=1);
     class UdomiEfoyFuelCell extends IPSModule
     {
         public function Create()
@@ -193,28 +191,19 @@ declare(strict_types=1);
             $this->SendDebug('UpdateFuelCell()', 'SendDataToParent Data: '.json_encode($data), 0);
 
             try {
-                return $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
-            } catch (Exception $e) {
+                $response =  $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
+				
+				$this->handleData(json_decode($response));
+			
+			} catch (Exception $e) {
                 $this->SendDebug('UpdateFuelCell()', 'Exception : '.$e, 0);
                 IPS_LogMessage('UdomiEfoyFuelCell', 'UpdateFuelCell() Exception : '.$e);
             }
         }
 
-        public function ReceiveData($JSONString)
+		
+		 public function handleData(object $data)
         {
-            $this->SendDebug('ReceiveData()', 'JSONString: '.$JSONString, 0);
-            // Receive data from Gateway
-            $data = json_decode($JSONString);
-
-            $data = $data->Buffer;
-
-            if ($data->imei != $this->ReadPropertyString('IMEI')) {
-                return;
-            }
-
-            $this->SendDebug('ReceiveData()', 'IMEI match: '.$data->imei, 0);
-
-            $obj = $data->response;
             $obj = $data->response;
             $err = $data->error;
 
@@ -306,4 +295,6 @@ declare(strict_types=1);
             $this->SendDebug('ReceiveData()', 'Update finnished', 0);
             $this->SetStatus(102); // Instanz aktiv
         }
+		
+      
     }

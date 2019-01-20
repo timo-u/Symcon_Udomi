@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
     class UdomiGateway extends IPSModule
     {
         public function Create()
@@ -159,7 +158,7 @@ declare(strict_types=1);
             $action = $data->action;
             $imei = $data->imei;
 
-            return $this->GetData($action, $imei);
+            return json_encode($this->GetData($action, $imei));
         }
 
         public function GetData(string $action, string $imei)
@@ -200,23 +199,19 @@ declare(strict_types=1);
                     'imei'    => $imei,
                     'response'=> null,
                     ];
-
-                    try {
-                        $this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
-                    } catch (Exception $e) {
-                        $this->SendDebug('GetData()', 'SendDataToChildren CURL Error  Exception : '.$e, 0);
-                        IPS_LogMessage('UdomiGateway', 'SendDataToChildren() CURL Error => Exception : '.$e);
-                    }
-
-                    return;
+					return ($data);
                 }
 
                 $obj = json_decode($response, true);
                 if ($obj == null) {
                     IPS_LogMessage('UdomiGateway', 'GetData() response object == null (Server-Error)');
                     $this->SendDebug('GetData()', 'Resposne is an invalid JSON: '.$response, 0);
-
-                    return;
+					$data = [
+						'error'   => 'response object is null',
+						'imei'    => $imei,
+						'response'=> null,
+						];
+					return ($data);
                 }
 
                 if (array_key_exists('type', $obj) && $obj['type'] == 'error') {
@@ -234,31 +229,17 @@ declare(strict_types=1);
                     'response'=> null,
                     ];
 
-                    try {
-                        $this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
-                    } catch (Exception $e) {
-                        $this->SendDebug('GetData()', 'SendDataToChildren API Error  Exception : '.$e, 0);
-                        IPS_LogMessage('UdomiGateway', 'SendDataToChildren() API Error => Exception : '.$e);
-                    }
-
-                    return;
+					return ($data);
                 }
                 $data = [
-            'error'    => null,
-            'response' => $obj,
-            'imei'     => $imei,
-            ];
+					'error'    => null,
+					'response' => $obj,
+					'imei'     => $imei,
+					];
 
                 $this->SendDebug('GetData()', 'SendDataToChildren Data: '.$response, 0);
-
-                try {
-                    $this->SendDataToChildren(json_encode(['DataID' => '{50E8C73F-2C16-4CBB-A484-AEEA1DDFE52F}', 'Buffer' => $data]));
-                } catch (Exception $e) {
-                    $this->SendDebug('GetData()', 'SendDataToChildren Exception : '.$e, 0);
-                    IPS_LogMessage('UdomiGateway', 'SendDataToChildren() Exception : '.$e);
-                }
-
-                return;
+				
+                return ($data);
             }
         }
     }
