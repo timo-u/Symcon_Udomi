@@ -201,8 +201,8 @@
 
         public function handleData(string $responsejson)
         {
-			$this->SendDebug('handleData()', 'responsejson: '.$responsejson, 0);
-			$data = json_decode($responsejson);
+            $this->SendDebug('handleData()', 'responsejson: '.$responsejson, 0);
+            $data = json_decode($responsejson);
             $obj = $data->response;
             $err = $data->error;
 
