@@ -192,21 +192,22 @@
 
             try {
                 $response = $this->SendDataToParent(json_encode(['DataID' => '{C5D651BF-3DEF-4346-BB30-C8A98106B115}', 'Buffer' => $data]));
-
-                $this->handleData(json_decode($response));
+                $this->handleData($response);
             } catch (Exception $e) {
                 $this->SendDebug('UpdateFuelCell()', 'Exception : '.$e, 0);
                 IPS_LogMessage('UdomiEfoyFuelCell', 'UpdateFuelCell() Exception : '.$e);
             }
         }
 
-        public function handleData(object $data)
+        public function handleData(string $responsejson)
         {
+			$this->SendDebug('handleData()', 'responsejson: '.$responsejson, 0);
+			$data = json_decode($responsejson);
             $obj = $data->response;
             $err = $data->error;
 
             if ($err != null) {
-                $this->SendDebug('ReceiveData()', 'Error: '.$err, 0);
+                $this->SendDebug('handleData()', 'Error: '.$err, 0);
 
                 if ($err == 'IMEI is not assigned to user or does not exist.') {
                     $this->SetStatus(201); 			// IMEI is not assigned to user or does not exist.
@@ -218,7 +219,7 @@
             }
 
             if ($obj == null) {
-                $this->SendDebug('ReceiveData()', 'No response', 0);
+                $this->SendDebug('handleData()', 'No response', 0);
 
                 return;
             }
@@ -290,7 +291,7 @@
             "warning_efoy": "no warning"
             */
 
-            $this->SendDebug('ReceiveData()', 'Update finnished', 0);
+            $this->SendDebug('handleData()', 'Update finnished', 0);
             $this->SetStatus(102); // Instanz aktiv
         }
     }
