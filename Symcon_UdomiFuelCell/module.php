@@ -224,16 +224,16 @@
                 return;
             }
 
-            SetValue($this->GetIDForIdent('BatteryVoltage'), $obj->battery_voltage_efoy);
-            SetValue($this->GetIDForIdent('MethanolConsumed'), $obj->methanol_consumed_efoy);
-            SetValue($this->GetIDForIdent('CartridgeLow'), $obj->cartridge_low_efoy);
-            SetValue($this->GetIDForIdent('HasProblem'), ($obj->error_efoy != 'no error' || $obj->warning_efoy != 'no warning'));
+            $this->SetValue('BatteryVoltage', $obj->battery_voltage_efoy);
+            $this->SetValue('MethanolConsumed', $obj->methanol_consumed_efoy);
+            $this->SetValue('CartridgeLow', $obj->cartridge_low_efoy);
+            $this->SetValue('HasProblem', ($obj->error_efoy != 'no error' || $obj->warning_efoy != 'no warning'));
 
-            SetValue($this->GetIDForIdent('OutputCurrent'), $obj->output_current_efoy);
-            SetValue($this->GetIDForIdent('OperationTime'), $obj->operation_time_efoy);
-            SetValue($this->GetIDForIdent('Timestamp'), $obj->timestamp);
-            SetValue($this->GetIDForIdent('Cartridge'), $obj->cartridge_efoy);
-            SetValue($this->GetIDForIdent('OutputEnergy'), $obj->cumulative_output_energy_efoy);
+            $this->SetValue('OutputCurrent', $obj->output_current_efoy);
+            $this->SetValue('OperationTime', $obj->operation_time_efoy);
+            $this->SetValue('Timestamp', $obj->timestamp);
+            $this->SetValue('Cartridge', $obj->cartridge_efoy);
+            $this->SetValue('OutputEnergy', $obj->cumulative_output_energy_efoy);
 
             $state = 0;
             switch ($obj->operating_state_efoy) {
@@ -268,11 +268,11 @@
         echo $obj->operating_mode_efoy;
 }
 
-            SetValue($this->GetIDForIdent('OperatingState'), $state);
-            SetValue($this->GetIDForIdent('OperatingMode'), $mode);
+            $this->SetValue('OperatingState', $state);
+            $this->SetValue('OperatingMode', $mode);
 
             $difference = time() - strtotime($obj->timestamp);
-            SetValue($this->GetIDForIdent('ConnectionError'), ($difference > $this->ReadPropertyInteger('ConnectionWarningInterval')) && $this->ReadPropertyInteger('ConnectionWarningInterval') > 0);
+            $this->SetValue('ConnectionError', ($difference > $this->ReadPropertyInteger('ConnectionWarningInterval')) && $this->ReadPropertyInteger('ConnectionWarningInterval') > 0);
 
             /*
             Sample:
